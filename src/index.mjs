@@ -31,18 +31,12 @@ app.get('/api/users', (req, res) => {
       // // when filter and value are undefined
       // if (!filter && !value) return res.send(mockUsers)
 
-      if(filter && value) return res.send(
+      if (filter && value) return res.send(
             mockUsers.filter((user) => user[filter].includes(value))
       )
       return res.send(mockUsers);
 })
 
-// REGISTERING A POST REQUEST
-
-app.post('/api/users', (req, res) => {
-      console.log(req.body);
-      return res.send(200)
-})
 
 app.get("/api/users/:id", (req, res) => {
       res.send(mockUsers)
@@ -67,3 +61,72 @@ app.listen(PORT, () => {
       console.log(`listening on ${PORT}`);
 });
 
+
+// REGISTERING A POST REQUEST
+
+app.post('/api/users', (req, res) => {
+      console.log(req.body);
+
+      // destructure body
+      const { body } = req;
+      // push user to the array
+      const newUser = { id: mockUsers[mockUsers.length - 1].id + 1, ...body }
+      mockUsers.push(newUser);
+      return res.status(201).send(newUser);
+});
+
+// PUT METHOD ---> updates an entire object
+app.put('/api/users/:id', (req, res) => {
+      const { body, params: { id } } = req;
+
+      const parsedId = parseInt(id);
+
+      if (isNaN(parsedId)) return res.sendStatus(400);
+
+      const findUserIndex = mockUsers.findIndex(
+            (user) => user.id === parsedId
+      );
+
+      if (findUserIndex === -1) return res.sendStatus(404);
+
+      // find user array by its index
+      mockUsers[findUserIndex] = { id: parsedId, ...body }; // updated the entire user object
+
+      return res.sendStatus(200);
+});
+
+// PATCH REQUEST --> UPDATES A SINGLE ENTITY/single field
+
+app.patch('/api/users/:id', (req, res) => {
+      const { body, params: { id } } = req;
+
+      const parsedId = parseInt(id);
+
+      if (isNaN(parsedId)) return res.sendStatus(400);
+
+      const findUserIndex = mockUsers.findIndex(
+            (user) => user.id === parsedId
+      );
+      if (findUserIndex === -1) return res.sendStatus(404);
+
+      mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
+      return res.sendStatus(200);
+
+})
+
+// DELETE REQUEST ---> USED TO DELETE RESOURCES
+
+app.delete('/api/users/:id', (req, res) => {
+      const { params: { id } } = req;
+
+      const parsedId = parseInt(id);
+
+      if (isNaN(parsedId)) return res.sendStatus(400);
+
+      const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+      if (findUserIndex === -1) return res.sendStatus(404);
+
+      mockUsers.splice(findUserIndex, 1);
+      return res.sendStatus(200);
+})
