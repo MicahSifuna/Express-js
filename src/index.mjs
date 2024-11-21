@@ -7,6 +7,15 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+// middleware
+const loggingMiddleware = (req, res, next) => {
+      console.log(`${req.method} - ${req.url}`)
+      next();
+}
+
+// register the middleware globally
+app.use(loggingMiddleware); // call the middleware before routes
+
 const mockUsers = [
       { id: 1, username: "micah", Name: "Micah" },
       { id: 2, username: "jim", Name: "Jim" },
@@ -19,9 +28,32 @@ const mockUsers = [
 
 // get request handler
 
-app.get('/', (req, res) => {
-      res.send({ msg: "Hello" });
-})
+// app.get('/', (req, res) => {
+//       res.send({ msg: "Hello" });
+// })
+
+//Use middleware locally instead
+// app.get('/', loggingMiddleware, (req, res) => {
+//       res.send({ msg: "Hello" });
+// })
+
+// or use middleware locally like this.
+app.get('/', (req, res, next) => {
+      console.log("BASE URL 1");
+      next();
+},
+      // you can have as many middlewares as you like
+      (req, res, next) => {
+            console.log("BASE URL 2");
+            next();
+      },
+      (req, res, next) => {
+            console.log("BASE URL 3");
+            next();
+      },
+      (req, res) => {
+            res.send({ msg: "Hello" });
+      });
 
 app.get('/api/users', (req, res) => {
       console.log(req.query)
